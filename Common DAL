@@ -1,0 +1,188 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using ISMA_POSL.lib.Entity;
+using System.Data;
+using Microsoft.Practices.EnterpriseLibrary.Data;
+using System.Data.Common;
+
+
+namespace ISMA_POSL.lib.DAL
+{
+    public class CommonDAL
+    {
+
+        public int SearchEntity(string tableName, string columnName, string txtboxValue)
+        {
+            Database db;
+            IDataReader dataReader;
+            DbCommand dbCommand;
+            int Count = 0;
+            //Currency Currency = null;
+            //Prepare Database Call
+            db = DatabaseFactory.CreateDatabase("ISMAtech_ConnectionString");
+            dbCommand = db.GetStoredProcCommand("Common_spSelectEntity");
+            db.AddInParameter(dbCommand, "tablename", DbType.String, tableName);
+            db.AddInParameter(dbCommand, "columnName", DbType.String, columnName);
+            db.AddInParameter(dbCommand, "columnValue", DbType.String, txtboxValue);
+
+            using (dataReader = db.ExecuteReader(dbCommand))
+            {
+                while (dataReader.Read())
+                {
+                    Count++;
+                }
+            }
+
+            return Count;
+        }
+
+        public int SearchEntityForEdit(string tableName, string columnName, string columnName1, string txtboxValue, string hdnvalue)
+        {
+            Database db;
+            IDataReader dataReader;
+            DbCommand dbCommand;
+            int Count = 0;
+            //Currency Currency = null;
+            //Prepare Database Call
+            db = DatabaseFactory.CreateDatabase("ISMAtech_ConnectionString");
+            dbCommand = db.GetStoredProcCommand("Common_spSelectEntityForEdit");
+            db.AddInParameter(dbCommand, "tablename", DbType.String, tableName);
+            db.AddInParameter(dbCommand, "columnName", DbType.String, columnName);
+            db.AddInParameter(dbCommand, "columnName1", DbType.String, columnName1);
+            db.AddInParameter(dbCommand, "columnValue", DbType.String, txtboxValue);
+            db.AddInParameter(dbCommand, "columnValue1", DbType.String, hdnvalue);
+
+            using (dataReader = db.ExecuteReader(dbCommand))
+            {
+                while (dataReader.Read())
+                {
+                    Count++;
+                }
+            }
+
+            return Count;
+        }
+
+        public DataTable DropDownLoadBydt(string sp)
+        {
+            Database db;
+            DbCommand dbCommand;
+            DataTable dtddlLoad = new DataTable();
+            //Prepare Database Call
+            db = DatabaseFactory.CreateDatabase("ISMAtech_ConnectionString");
+            dbCommand = db.GetStoredProcCommand(sp);
+            dtddlLoad = db.ExecuteDataSet(dbCommand).Tables[0];
+            return dtddlLoad;
+        }
+
+        public DataTable DropDownLoadByStr(string str)
+        {
+            Database db;
+            DbCommand dbCommand;
+            DataTable dtddlLoad = new DataTable();
+            //Prepare Database Call
+            db = DatabaseFactory.CreateDatabase("ISMAtech_ConnectionString");
+            dbCommand = db.GetSqlStringCommand(str);
+            dtddlLoad = db.ExecuteDataSet(dbCommand).Tables[0];
+            return dtddlLoad;
+        }
+
+        public string StringLoadByStr(string str)
+        {
+            Database db;
+            DbCommand dbCommand;
+            DataTable dtddlLoad = new DataTable();
+            string retStr = "";
+            //Prepare Database Call
+            db = DatabaseFactory.CreateDatabase("ISMAtech_ConnectionString");
+            dbCommand = db.GetSqlStringCommand(str);
+            dtddlLoad = db.ExecuteDataSet(dbCommand).Tables[0];
+            if (dtddlLoad.Rows.Count>0)
+            {
+                retStr = dtddlLoad.Rows[0][0].ToString();
+            }
+            return retStr;
+        }
+
+        public DataTable DropDownLoadBydtWithIntParameter(string sp, Int32 ID)
+        {
+            Database db;
+            DbCommand dbCommand;
+            DataTable dtddlLoad = new DataTable();
+            //Prepare Database Call
+            db = DatabaseFactory.CreateDatabase("ISMAtech_ConnectionString");
+            dbCommand = db.GetStoredProcCommand(sp);
+            db.AddInParameter(dbCommand, "ID", DbType.String, ID);
+            dtddlLoad = db.ExecuteDataSet(dbCommand).Tables[0];
+            return dtddlLoad;
+        }
+        public DataTable DropDownLoadBydtWithIntParameter2(string sp, Int32 ID, Int32 ID2)
+        {
+            Database db;
+            DbCommand dbCommand;
+            DataTable dtddlLoad = new DataTable();
+            //Prepare Database Call
+            db = DatabaseFactory.CreateDatabase("ISMAtech_ConnectionString");
+            dbCommand = db.GetStoredProcCommand(sp);
+            db.AddInParameter(dbCommand, "ID", DbType.String, ID);
+            db.AddInParameter(dbCommand, "ID2", DbType.String, ID2);
+            dtddlLoad = db.ExecuteDataSet(dbCommand).Tables[0];
+            return dtddlLoad;
+        }
+
+
+        public string GetDataById( string sp,string ParamText,int ParamValue,string FieldName1)
+        {
+            IDataReader dataReader;
+            Database db;
+            DbCommand dbCommand;
+            DataTable dt = new DataTable();
+            db = DatabaseFactory.CreateDatabase("ISMAtech_ConnectionString");
+            dbCommand = db.GetStoredProcCommand(sp);
+            db.AddInParameter(dbCommand, ParamText.ToString(), DbType.Int32, ParamValue);
+            dt = db.ExecuteDataSet(dbCommand).Tables[0];
+
+            String searchitem =dt.Rows[0][FieldName1]==null?"": dt.Rows[0][FieldName1].ToString();
+            return searchitem;
+
+        }
+
+        public string GetDataByString(string sp, string ParamText, string ParamValue, string FieldName1)
+        {
+            IDataReader dataReader;
+            Database db;
+            DbCommand dbCommand;
+            DataTable dt = new DataTable();
+            db = DatabaseFactory.CreateDatabase("ISMAtech_ConnectionString");
+            dbCommand = db.GetStoredProcCommand(sp);
+            db.AddInParameter(dbCommand, ParamText.ToString(), DbType.String, ParamValue);
+            dt = db.ExecuteDataSet(dbCommand).Tables[0];
+
+            String searchitem = dt.Rows[0][FieldName1].ToString();
+            return searchitem;
+
+        }
+
+        public string GetStringByQuery(string Query)
+        {
+            IDataReader dataReader;
+            Database db;
+            DbCommand dbCommand;
+            DataTable dt = new DataTable();
+            db = DatabaseFactory.CreateDatabase("ISMAtech_ConnectionString");
+            dbCommand = db.GetSqlStringCommand(Query);
+            dt = db.ExecuteDataSet(dbCommand).Tables[0];
+            String searchitem = "";
+            if (dt.Rows.Count>0)
+            {
+                searchitem = dt.Rows[0][0].ToString();
+            }
+           
+            return searchitem;
+
+        }
+
+    }
+}
