@@ -1,0 +1,71 @@
+Store Procedure
+
+ALTER Proc [dbo].[AuthSp_CheckLogin]
+(
+@UserName varchar(50),
+@UPassword varchar(50)
+)
+AS
+BEGIN
+Select UserAuth.UserId,
+(UserRegistration.FirstName + ' ' + ISNULL(UserRegistration.MiddleName, '') + ' '+ UserRegistration.LastName) AS FulName,
+UserImage,''
+from UserAuth INNER JOIN
+UserRegistration ON UserAuth.UserId = UserRegistration.UserId
+where IsActive = 1 and UserAuth.UserName = @UserName and UserPassword = @UPassword
+
+END
+
+ALTER PROC [dbo].[GetEntity] 
+(
+	-- Add the parameters for the function here
+	@TableName VARCHAR(512)
+)
+AS
+BEGIN
+
+
+SELECT ('public ' +(CASE WHEN IS_NULLABLE ='YES' AND DATA_TYPE !='nvarchar' AND DATA_TYPE !='varchar' THEN 'Nullable<'+(CASE  WHEN DATA_TYPE='bit' 
+THEN 'Boolean'  WHEN DATA_TYPE='nvarchar' THEN 'string'  WHEN DATA_TYPE='varchar' THEN 'string' WHEN DATA_TYPE='datetime' THEN 'DateTime'
+ ELSE DATA_TYPE END)+'>' ELSE (CASE  WHEN DATA_TYPE='bit' 
+THEN 'Boolean'  WHEN DATA_TYPE='nvarchar' THEN 'string'  WHEN DATA_TYPE='varchar' THEN 'string' WHEN DATA_TYPE='datetime' THEN 'DateTime'
+ ELSE DATA_TYPE END) END)+' '+ COLUMN_NAME+' { get; set; }') 
+ColumnName from information_schema.COLUMNS WHERE TABLE_NAME=@TableName
+
+END
+/*
+exec GetEntity 'Master_City'
+*/
+
+USE [BRAND_VIEW]
+GO
+/** Object:  StoredProcedure [dbo].[GetEntityParameter]    Script Date: 06/27/2022 12:19:27 PM **/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date, ,>
+-- Description:	<Description, ,>
+-- =============================================
+ALTER PROC [dbo].[GetEntityParameter] 
+(
+	-- Add the parameters for the function here
+	@TableName VARCHAR(512),@EntityObjName VARCHAR(128)
+)
+AS
+BEGIN
+
+
+SELECT 'db.AddInParameter(dbCommand, "'+ COLUMN_NAME+'",  DbType.'+(CASE WHEN DATA_TYPE='varchar' THEN 'String' WHEN DATA_TYPE='int' THEN 'Int32'
+WHEN DATA_TYPE='nvarchar' THEN 'String' WHEN DATA_TYPE='bit' THEN 'Boolean' WHEN DATA_TYPE='datetime' THEN 'DateTime' 
+WHEN DATA_TYPE='decimal' THEN 'Decimal' ELSE DATA_TYPE  END)+', '+@EntityObjName+'.'+COLUMN_NAME+');' AS Parametters
+from information_schema.COLUMNS WHERE TABLE_NAME=@TableName
+END
+
+/*
+exec GetEntity 'Master_City'
+exec [GetEntityParameter] 'Inventory_StockOut_Master','objStockOUT'
+*/
+--SELECT dbo.Inventory_StockOut_Master
